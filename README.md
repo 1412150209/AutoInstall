@@ -21,5 +21,24 @@
  - 用Write-Debug替换Write-Host
  - 使用 \[void\] 或 Out-Null 丢弃不需要的返回值
 
+## 使用方法
+目录结构：
+ - autoInstallUI.ps1
+ - settings.json
+ - \[SoftFolder\]  ---注：这个文件夹的名字参考下面setting.json中的配置
+   - 软件1
+   - 软件2
+
+ setting.json解释：
+  - Config
+     - InstallTimeout：软件安装超时时间(毫秒，超时的安装程序会被强制停止运行)
+     - ProgressBarUpdateInterval：进度条刷新间隔(毫秒)
+     - TempEditRegistry：是否临时修改注册表(也可以不修改注册表，就静默安装软件到默认位置，或者通过参数指定的位置)
+     - SoftFolder：软件安装包所在的文件夹名字
+  - SoftwareList：指定软件安装包显示的名字和安装参数
+     - Name：显示在安装过程中的名字，例如：软件1
+     - Path：在\[SoftFolder\]下安装包的全称，例如：软件1.exe
+     - Arguments：指定安装参数($installLocation是在软件中指定的安装位置，一些特殊符号记得转义，反斜杠什么的)
+
 ## 小发现
 WinRAR的静默安装，只要在安装包同目录下提供授权文件，它能自动复制到安装目录里自动授权
