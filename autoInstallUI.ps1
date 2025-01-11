@@ -1,4 +1,4 @@
-﻿# 检查是否以管理员身份运行
+# 检查是否以管理员身份运行
 if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
     Start-Process powershell "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$PSCommandPath`"" -Verb RunAs
     exit
@@ -24,7 +24,7 @@ try {
     exit
 }
 
-# 获取配置参数
+##### 获取配置参数
 # 安装超时时间
 $installTimeout = $settings.Config.InstallTimeout
 # 进度条刷新间隔
@@ -177,19 +177,23 @@ $startButton.Add_Click({
 
         # 初始化失败软件列表
         $failedSoftware = @()
+
+        ##### 重复使用的较长字符串
+        $CurrentVision = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion"
+        $CurrentVisionX86 = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion"
         
         if ($EditRegistry){
             # 备份原始注册表值
-            $originalProgramFiles = Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion" -Name "ProgramFilesDir" | Select-Object -ExpandProperty ProgramFilesDir
-            $originalProgramFilesX86 = Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion" -Name "ProgramFilesDir (x86)" | Select-Object -ExpandProperty "ProgramFilesDir (x86)"
-            $originalWow6432ProgramFiles = Get-ItemProperty -Path "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion" -Name "ProgramFilesDir" | Select-Object -ExpandProperty ProgramFilesDir
-            $originalWow6432ProgramFilesX86 = Get-ItemProperty -Path "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion" -Name "ProgramFilesDir (x86)" | Select-Object -ExpandProperty "ProgramFilesDir (x86)"
+            $originalProgramFiles = Get-ItemProperty -Path $CurrentVision -Name "ProgramFilesDir" | Select-Object -ExpandProperty ProgramFilesDir
+            $originalProgramFilesX86 = Get-ItemProperty -Path $CurrentVision -Name "ProgramFilesDir (x86)" | Select-Object -ExpandProperty "ProgramFilesDir (x86)"
+            $originalWow6432ProgramFiles = Get-ItemProperty -Path $CurrentVisionX86 -Name "ProgramFilesDir" | Select-Object -ExpandProperty ProgramFilesDir
+            $originalWow6432ProgramFilesX86 = Get-ItemProperty -Path $CurrentVisionX86 -Name "ProgramFilesDir (x86)" | Select-Object -ExpandProperty "ProgramFilesDir (x86)"
 
             # 修改注册表值为自定义路径
-            Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion" -Name "ProgramFilesDir" -Value $installLocation
-            Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion" -Name "ProgramFilesDir (x86)" -Value $installLocation
-            Set-ItemProperty -Path "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion" -Name "ProgramFilesDir" -Value $installLocation
-            Set-ItemProperty -Path "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion" -Name "ProgramFilesDir (x86)" -Value $installLocation
+            Set-ItemProperty -Path $CurrentVision -Name "ProgramFilesDir" -Value $installLocation
+            Set-ItemProperty -Path $CurrentVision -Name "ProgramFilesDir (x86)" -Value $installLocation
+            Set-ItemProperty -Path $CurrentVisionX86 -Name "ProgramFilesDir" -Value $installLocation
+            Set-ItemProperty -Path $CurrentVisionX86 -Name "ProgramFilesDir (x86)" -Value $installLocation
         }
         
         foreach ($software in $selectedSoftwares) {
@@ -204,6 +208,7 @@ $startButton.Add_Click({
             if (-not (Test-Path $installerPath)) {
                 Write-Host "错误: $softwareName 的安装包未找到。"
                 $failedSoftware += $softwareName
+                $currentSoftware += 1
                 continue
             }
 
@@ -247,10 +252,10 @@ $startButton.Add_Click({
 
         if($EditRegistry){
             # 恢复原始注册表值
-            Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion" -Name "ProgramFilesDir" -Value $originalProgramFiles
-            Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion" -Name "ProgramFilesDir (x86)" -Value $originalProgramFilesX86
-            Set-ItemProperty -Path "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion" -Name "ProgramFilesDir" -Value $originalWow6432ProgramFiles
-            Set-ItemProperty -Path "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion" -Name "ProgramFilesDir (x86)" -Value $originalWow6432ProgramFilesX86
+            Set-ItemProperty -Path $CurrentVision -Name "ProgramFilesDir" -Value $originalProgramFiles
+            Set-ItemProperty -Path $CurrentVision -Name "ProgramFilesDir (x86)" -Value $originalProgramFilesX86
+            Set-ItemProperty -Path $CurrentVisionX86 -Name "ProgramFilesDir" -Value $originalWow6432ProgramFiles
+            Set-ItemProperty -Path $CurrentVisionX86 -Name "ProgramFilesDir (x86)" -Value $originalWow6432ProgramFilesX86
         }
 
         $statusText.Text = "安装完成！"
