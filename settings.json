@@ -1,0 +1,35 @@
+{
+	"Config": {
+		"InstallTimeout": 300000,
+		"ProgressBarUpdateInterval": 500,
+		"TempEditRegistry": true,
+		"SoftFolder": "software"
+	},
+	"SoftwareList": [
+		{
+			"Name": "微信",
+			"Path": "WeChatSetup.exe",
+			"Arguments": "/S"
+		},
+		{
+			"Name": "QQ",
+			"Path": "QQ9.7.23.29394.exe",
+			"Arguments": "/S"
+		},
+		{
+			"Name": "WPS",
+			"Path": "WPS_Setup_19770.exe",
+			"Arguments": "/S -agreelicense /D=$installLocation\\WPS"
+		},
+		{
+			"Name": "搜狗输入法",
+			"Path": "sogou_pinyin_guanwang_14.12a.exe",
+			"Arguments": "/S /D=$installLocation\\Sougou"
+		},
+		{
+			"Name": "WinRAR",
+			"Path": "winrar-x64-701sc.exe",
+			"Arguments": "/S"
+		}
+	]
+}
