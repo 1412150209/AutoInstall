@@ -20,3 +20,6 @@
  - 用 Split-Path -Parent (Get-Process -Id $PID).Path 来替代$PSScriptRoot
  - 用Write-Debug替换Write-Host
  - 使用 \[void\] 或 Out-Null 丢弃不需要的返回值
+
+## 小发现
+WinRAR的静默安装，只要在安装包同目录下提供授权文件，它能自动复制到安装目录里自动授权
