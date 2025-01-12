@@ -270,16 +270,29 @@ $startButton.Add_Click({
             $failedList = ($failedSoftware -join ", ")
             Write-Host "安装失败的软件: $failedList"
             [System.Windows.MessageBox]::Show("以下软件安装失败: $failedList", "安装完成", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Warning)
-            $form.Close()
         } else {
             [System.Windows.MessageBox]::Show("所有软件安装成功！", "安装完成", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
-            $form.Close()
         }
     }
 
     # 传递参数并异步执行
     $powershell.AddScript($scriptBlock).AddArgument($form).AddArgument($statusText).AddArgument($progressBar).AddArgument($selectedSoftwares).AddArgument($installLocation).AddArgument($installTimeout).AddArgument($progressUpdateInterval).AddArgument($PSScriptRoot).AddArgument($currentSoftwareLabel).AddArgument($EditRegistry).AddArgument($SoftwareFolder)
-    [void]$powershell.BeginInvoke()
+    $asyncResult = $powershell.BeginInvoke()
+
+    # 在主线程中保持窗口响应
+    while (-not $asyncResult.IsCompleted) {
+        # 处理窗口事件
+        [System.Windows.Forms.Application]::DoEvents()
+        Start-Sleep -Milliseconds 100
+    }
+
+    # 清理资源
+    $powershell.EndInvoke($asyncResult)
+    $powershell.Dispose()
+    $runspace.Close()
+    $runspace.Dispose()
+    # 关闭程序
+    [System.Environment]::Exit(0)
 })
 
 # 显示窗口
